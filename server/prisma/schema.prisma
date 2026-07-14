@@ -1,0 +1,118 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model bookings {
+  id                   Int       @id @default(autoincrement())
+  booking_reference    String?   @unique(map: "ix_bookings_booking_reference") @db.VarChar
+  user_id              Int?
+  start_date           DateTime? @db.Timestamptz(6)
+  end_date             DateTime? @db.Timestamptz(6)
+  total_price          Float?
+  status               String?   @db.VarChar
+  shipping_address     Json?     @db.Json
+  contact_person       String?   @db.VarChar
+  phone                String?   @db.VarChar
+  special_requirements String?   @db.VarChar
+  products_details     Json?     @db.Json
+  created_at           DateTime? @default(now()) @db.Timestamptz(6)
+  delivery_agent_id    Int?
+  delivery_agent_name  String?   @db.VarChar
+  payment_method       String?   @db.VarChar
+  deposit_option       String?   @db.VarChar
+  paid_amount          Float?
+  balance_amount       Float?
+  razorpay_payment_id  String?   @db.VarChar
+  razorpay_order_id    String?   @db.VarChar
+  razorpay_signature   String?   @db.VarChar
+  delivery_otp         String?   @db.VarChar
+  late_fee             Float?    @default(0.0)
+  damage_fee           Float?    @default(0.0)
+  delivery_proof       Json?     @db.Json
+  pickup_proof         Json?     @db.Json
+  refund_status        String?   @default("none") @db.VarChar
+  refund_amount        Float?    @default(0.0)
+  refund_notes         String?   @db.VarChar
+  customer_feedback    Json?
+  delivered_at         DateTime? @db.Timestamptz(6)
+  picked_up_at         DateTime? @db.Timestamptz(6)
+  total_deposit        Float?    @default(0.0)
+  email                String?   @db.VarChar
+  users                users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_bookings_id")
+}
+
+model products {
+  id              Int     @id @default(autoincrement())
+  title           String  @db.VarChar
+  description     String? @db.VarChar
+  category        String  @db.VarChar
+  price_per_day   Float
+  image           String? @db.VarChar
+  available       Int?
+  ratings         Float?
+  reviews         Int?
+  specs           Json?   @db.Json
+  min_rental_days Int?
+  deposit_amount  Float?
+  addons          Json?   @db.Json
+  sku             String? @unique(map: "ix_products_sku") @db.VarChar
+  total_stock     Int?
+  damaged_stock   Int?
+  reserved_stock  Int?
+  stock_holds     Int?
+
+  @@index([category], map: "ix_products_category")
+  @@index([id], map: "ix_products_id")
+  @@index([title], map: "ix_products_title")
+}
+
+model user_addresses {
+  id           Int       @id @default(autoincrement())
+  address_id   String    @unique(map: "ix_user_addresses_address_id") @db.VarChar
+  user_id      Int
+  full_name    String    @db.VarChar
+  phone        String    @db.VarChar
+  street       String    @db.VarChar
+  landmark     String?   @db.VarChar
+  city         String    @db.VarChar
+  state        String    @db.VarChar
+  zipcode      String    @db.VarChar
+  country      String?   @db.VarChar
+  address_type String?   @db.VarChar
+  is_default   Boolean?
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  lat          Float?
+  lng          Float?
+  users        users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([id], map: "ix_user_addresses_id")
+  @@index([user_id], map: "ix_user_addresses_user_id")
+}
+
+model users {
+  id             Int              @id @default(autoincrement())
+  phone          String?          @unique(map: "ix_users_phone") @db.VarChar
+  role           String?          @db.VarChar
+  is_active      Boolean?
+  created_at     DateTime?        @default(now()) @db.Timestamptz(6)
+  username       String?          @unique @db.VarChar
+  password       String?          @db.VarChar
+  name           String?          @db.VarChar
+  vehicle        String?          @db.VarChar
+  profile_image  String?
+  saved_address  Json?            @db.Json
+  ratings        Float?           @default(5.0)
+  reviews_count  Int?             @default(0)
+  bookings       bookings[]
+  user_addresses user_addresses[]
+
+  @@index([id], map: "ix_users_id")
+}
