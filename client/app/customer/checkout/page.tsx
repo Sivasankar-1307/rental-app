@@ -1,25 +1,25 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import Navbar from "@/components/Navbar";
 import Button from "@/components/Button";
 import Card from "@/components/Card";
 import { useCart } from "@/context/CartContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Address } from "@/types/product";
 import { api } from "@/lib/api";
 import './checkout.css';
 import Chatbot from "@/components/Chatbot";
-import dynamic from 'next/dynamic';
+import nextDynamic from 'next/dynamic';
 
-const MapSection = dynamic(() => import("@/components/MapSection"), { 
+const MapSection = nextDynamic(() => import("@/components/MapSection"), { 
   ssr: false,
   loading: () => <div className="h-64 bg-slate-800 animate-pulse rounded-2xl flex items-center justify-center text-gray-400">Loading Map Engine...</div>
 });
 
-
-
-export default function CheckoutPage() {
+function CheckoutForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const bundleId = searchParams.get("bundle");
@@ -893,5 +893,17 @@ export default function CheckoutPage() {
       <Chatbot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
      
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <CheckoutForm />
+    </Suspense>
   );
 }

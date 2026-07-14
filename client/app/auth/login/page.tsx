@@ -1,14 +1,16 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import Navbar from "@/components/Navbar";
 import Card from "@/components/Card";
 import Button from "@/components/Button";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { api } from "@/lib/api";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [phone, setPhone] = useState("");
@@ -123,5 +125,17 @@ export default function LoginPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
