@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+export const dynamic = "force-dynamic";
+
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { api } from "@/lib/api";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -12,7 +14,7 @@ const OTP_LENGTH = 6;
 const OTP_EXPIRY_SECONDS = 300;
 const RESEND_COOLDOWN = 60;
 
-export default function OTPPage() {
+function OTPForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(""));
@@ -234,5 +236,17 @@ export default function OTPPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function OTPPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <OTPForm />
+    </Suspense>
   );
 }
